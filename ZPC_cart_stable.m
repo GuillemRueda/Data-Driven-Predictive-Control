@@ -40,7 +40,7 @@ l = 1;
 g= 9.81;
 
 % define discrete system
-dt = 0.01;
+dt = 0.1;
 
 % System in cont time
 A = [0, 0, 1, 0; 0, 0, 0, 1; 0, mp*g/mc, 0, 0; 0, -(mp+mc)*g/(mc*l), 0, 0];
@@ -52,9 +52,10 @@ D = zeros(dim_x, 1);
 sys_c = ss(A, B_ss, C, D);
 sys_d = c2d(sys_c, dt);
 %number of trajectories
-initpoints = 100;
+initpoints = 50;
 %number of steps for each trajectory
-steps = 10;
+Tf = 30;
+steps = Tf/dt;
 %Total number of samples
 totalsamples = initpoints*steps;
 %% initial set and input
@@ -68,20 +69,23 @@ ref = [0; 0; 0; 0];
 %output constraint
 % y_lb = [-10;2;-10;-10;-10]; 
 % y_ub = [10;10;10;10;10]; 
-y_lb = [-1;-0.1;-0.1;-.1]; 
-y_ub = [1;0.1;.1;0.1]; 
+y_lb = [-1;-pi/4;-0.1;-.1]; 
+y_ub = -1.*y_lb;
+% y_ub = [1;0.1;.1;0.1]; 
 intc = interval(y_lb,y_ub);
 
 
 %initial point
-y0 = zeros(dim_x,1);
+% y0 = zeros(dim_x,1);
+y0 = [0.5; 0.05; 0; 0];
 
 %initial zonotope to generate data
 % X0 = zonotope([y0,25*diag(ones(dim_x,1))]);
 X0 = zonotope([y0,zeros(dim_x,1)]);
 
 %input zonotope
-U = zonotope([uref,1]);
+u_lb = 5;
+U = zonotope([uref,u_lb]);
 
 %noise zontope W (modeling noise)
 %less noise
@@ -134,6 +138,7 @@ x(:,1) = x0;
 index=1;
 
 utraj = zeros(initpoints*dim_x, steps, dim_u);
+% Show trajectories
 % TODO: Change to nonlinear dynamics 
 for j=1:dim_x:initpoints*dim_x
     x(j:j+dim_x-1,1) = randPoint(X0);
@@ -146,6 +151,7 @@ for j=1:dim_x:initpoints*dim_x
         index=index+1;
     end
 end
+
 
 
 %prepeare Y_+ Y_-
@@ -215,7 +221,7 @@ Qu = 0.001*eye(dim_u);
 execTimeZPC=[];
 execTimeRMPC=[];
 % ZPC number of time steps
-maxsteps = 80;
+maxsteps = Tf/dt;
 % chosen time step for plotting 
 chosedtimestep = 10;
 for timesteps = 1:maxsteps
@@ -390,5 +396,5 @@ meanRMPCtime= mean(execTimeRMPC)
 stdRMPCtime= std(execTimeRMPC)
 
 %save the workspace
-save('workspaces\ZPC_cart_stable');
+save('workspaces\ZPC_cart_stable_pi4');
 %next run plotPolyZono for plotting

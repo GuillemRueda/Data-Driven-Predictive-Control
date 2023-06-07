@@ -40,19 +40,22 @@ l = 1;
 g= 9.81;
 
 % define discrete system
-dt = 0.05;
+dt = 0.1;
 
 % System in cont time
-A = eye(4) + [0, 0, dt, 0; 0, 0, 0, dt; 0, mp*g/mc, 0, 0; 0, (mp+mc)*g/(mc*l), 0, 0];
-B_ss = [0; 0; dt/mc; dt/(mc*l)];
+A = [0, 0, 1, 0; 0, 0, 0, 1; 0, mp*g/mc, 0, 0; 0, -(mp+mc)*g/(mc*l), 0, 0];
+% A = eye(4) + [0, 0, dt, 0; 0, 0, 0, dt; 0, dt*mp*g/mc, 0, 0; 0, -dt*(mp+mc)*g/(mc*l), 0, 0];
+B_ss = [0; 0; 1/mc; 1/(mc*l)];
 C = eye(dim_x);
 D = zeros(dim_x, 1);
 
-sys_d = ss(A, B_ss, C, D);
+sys_c = ss(A, B_ss, C, D);
+sys_d = c2d(sys_c, dt);
 %number of trajectories
 initpoints = 100;
 %number of steps for each trajectory
-steps = 10;
+Tf = 10;
+steps = Tf/dt;
 %Total number of samples
 totalsamples = initpoints*steps;
 %% initial set and input
@@ -72,14 +75,15 @@ intc = interval(y_lb,y_ub);
 
 
 %initial point
-y0 = zeros(dim_x,1);
+% y0 = zeros(dim_x,1);
+y0 = [0.5; 0.05; 0; 0];
 
 %initial zonotope to generate data
 % X0 = zonotope([y0,25*diag(ones(dim_x,1))]);
 X0 = zonotope([y0,zeros(dim_x,1)]);
 
 %input zonotope
-U = zonotope([uref,5]);
+U = zonotope([uref,1]);
 
 %noise zontope W (modeling noise)
 %less noise
@@ -144,6 +148,7 @@ for j=1:dim_x:initpoints*dim_x
         index=index+1;
     end
 end
+% Show stable car
 
 
 %prepeare Y_+ Y_-
@@ -180,9 +185,9 @@ subplot(2,1,2)
 hold on; box on; plot(t_vec, x(2,:),'b'); xlabel('t'); ylabel('\theta'); axis equal;
 figure;
 subplot(2,1,1)
-hold on; box on; plot(t_vec, x(3,:),'b'); xlabel('t'); ylabel('\dot{x}'); axis equal;
+hold on; box on; plot(t_vec, x(3,:),'b'); xlabel('t'); ylabel('\dot{x}','interpreter','latex'); axis equal;
 subplot(2,1,2)
-hold on; box on; plot(t_vec, x(4,:),'b'); xlabel('t'); ylabel('\dot{\theta}'); axis equal;
+hold on; box on; plot(t_vec, x(4,:),'b'); xlabel('t'); ylabel('\dot{\theta}','interpreter','latex'); axis equal;
 close all;
 disp(max(x(2:4:end)))
 
@@ -388,5 +393,5 @@ meanRMPCtime= mean(execTimeRMPC)
 stdRMPCtime= std(execTimeRMPC)
 
 %save the workspace
-save('workspaces\ZPC');
+save('workspaces\ZPC_cart_stable');
 %next run plotPolyZono for plotting
