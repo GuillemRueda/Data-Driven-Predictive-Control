@@ -64,20 +64,22 @@ uref = 0;
 %reference output (steady state states) 
 % ref = inv(eye(dim_x)-sys_d.A)*sys_d.B*uref; 
 % Hovering condition (inverse doesn't work because A is not invertible) 
-ref = [0; 0; 0; 0];
+ref = [0; pi; 0; 0];
 
 %output constraint
 % y_lb = [-10;2;-10;-10;-10]; 
 % y_ub = [10;10;10;10;10]; 
-y_lb = [-1;-pi/4;-0.1;-.1]; 
-y_ub = -1.*y_lb;
+% y_lb = [-10;-pi/4 + pi;-5;-5]; 
+% y_ub = [10;pi/4 + pi;5;5]; 
+y_ub = [1;0.1 + pi;.1;0.1]; 
+y_lb = [-1;-0.1 + pi;-.1;-0.1];  
 % y_ub = [1;0.1;.1;0.1]; 
 intc = interval(y_lb,y_ub);
 
 
 %initial point
 % y0 = zeros(dim_x,1);
-y0 = [0.5; 0.05; 0; 0];
+y0 = [0.5; 0.05 + pi; 0; 0];
 
 %initial zonotope to generate data
 % X0 = zonotope([y0,25*diag(ones(dim_x,1))]);
@@ -374,6 +376,9 @@ for timesteps = 1:maxsteps
     yt2ref(timesteps)= norm(y_t(:,timesteps)-ref,2);
     yt2ref_model(timesteps)= norm(y_t_model(:,timesteps)-ref,2);
     halt = 1;
+    if rem(timesteps, 10) == 0
+        fprintf('Timestep: %d\n', timesteps)
+    end
 end
 
 
@@ -396,5 +401,5 @@ meanRMPCtime= mean(execTimeRMPC)
 stdRMPCtime= std(execTimeRMPC)
 
 %save the workspace
-save('workspaces\ZPC_cart_unstable_pi4');
+save('workspaces\ZPC_cart_unstable');
 %next run plotPolyZono for plotting

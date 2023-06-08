@@ -4,8 +4,10 @@ close all
 %load work spaces
 % load('workspaces\poly')
 % load('workspaces\ZPC')
-load('workspaces\ZPC_cart_stable_pi4.mat')
-load('workspaces\polycart_stable_pi4.mat')
+% load('workspaces\ZPC_cart_stable.mat')
+% load('workspaces\polycart_stabl.mat')
+load('workspaces\ZPC_cart_unstable.mat')
+load('workspaces\polycart_unstable.mat')
 
 %less noise
 %initpoints 4 step 100
@@ -282,7 +284,9 @@ han_yt2ref_poly=plot(t_vec(1:end-1), yt2ref_poly,'r-');
 han_yt2ref_model=plot(t_vec(1:end-1), yt2ref_model,'r+-');
 han_yt2ref=plot(t_vec(1:end-1), yt2ref,'b*-');
 %ylim([0,2.5])
+grid on
 xlabel('Simulation time, $t$ (sec)','Interpreter','latex')
+xlabel('Error from Reference','Interpreter','latex')
 legend([han_yt2ref,han_yt2ref_model,han_yt2ref_poly],'ZPC $|| y(t) - r_y(t) ||$','RMPC-zono $|| y(t) - r_y(t) ||$','RMPC-poly $|| y(t) - r_y(t) ||$','Interpreter','latex')
 ax = gca;
 ax.FontSize = 19;
@@ -301,12 +305,15 @@ ax.Position = [left bottom ax_width ax_height];
 figure('Renderer', 'painters', 'Position', [10 10 700 800]);
 hold on
 box on;
-han_yt2ref_poly=plot(t_vec(1:end-1), Cost_rob_ol,'r-');
 han_yt2ref_model=plot(t_vec(1:end-1), Cost_model_vec,'r+-');
 han_yt2ref=plot(t_vec(1:end-1), Cost_vec,'b*-');
 %ylim([0,3000])
 xlabel('Simulation time, $t$ (sec)','Interpreter','latex')
-legend([han_yt2ref,han_yt2ref_model,han_yt2ref_poly],'ZPC cost','RMPC-zono cost','RMPC-poly cost','Interpreter','latex')
+ylabel('Running Cost', 'Interpreter', 'latex')
+grid on
+% han_yt2ref_poly=plot(t_vec(1:end-1), Cost_rob_ol,'r-');
+% legend([han_yt2ref,han_yt2ref_model,han_yt2ref_poly],'ZPC cost','RMPC-zono cost','RMPC-poly cost','Interpreter','latex')
+legend([han_yt2ref,han_yt2ref_model],'ZPC cost','RMPC-zono cost','Interpreter','latex')
 ax = gca;
 ax.FontSize = 19;
 %set(gcf, 'Position',  [50, 50, 800, 400])
@@ -331,6 +338,7 @@ hand_YPred_t=plot(t_vec, YPred(1,:),'b+-');
 handcon = plot(t_vec, intc.inf(1)*ones(size(y_t(1,:))),'k--');
 handcon = plot(t_vec, intc.sup(1)*ones(size(y_t(1,:))),'k--');
 axis([0,Tf ,min(min(y_t(1,:)),intc.sup(1))-1, intc.sup(1)+1]);
+grid on
 xlabel('Simulation time, $t$ (sec)','Interpreter','latex')
 ylabel('$x$', 'Interpreter', 'latex')
 legend([hand_y_t,hand_YPred_t,hand_y_t_model,hand_y_poly,handcon],'ZPC $x(t)$','ZPC $x$-pred$(t)$','RMPC-zono $x(t)$','RMPC-poly $x(t)$','constraint','Interpreter','latex');
@@ -360,6 +368,7 @@ handcon = plot(t_vec, intc.sup(2)*ones(size(y_t(2,:))),'k--');
 axis([0,Tf ,min(min(y_t(2,:)),intc.sup(2))-1, intc.sup(2)+1]);
 xlabel('Simulation time, $t$ (sec)','Interpreter','latex')
 legend([hand_y_t,hand_YPred_t,hand_y_t_model,hand_y_poly,handcon],'ZPC $\theta(t)$','ZPC $\theta$-pred$(t)$','RMPC-zono $\theta(t)$','RMPC-poly $\theta(t)$','constraint','Interpreter','latex');
+grid on
 ax = gca;
 ax.FontSize = 19;
 %set(gcf, 'Position',  [50, 50, 800, 400])
